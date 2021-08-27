@@ -98,7 +98,6 @@ public class Pop {
         okhttp3.Call call;
         okhttp3.Response res;
         okhttp3.ResponseBody resBody;
-        org.jsoup.nodes.Document resDocument;
         String resBodyString = "", pop_count = "";
         res = null;
         do {
