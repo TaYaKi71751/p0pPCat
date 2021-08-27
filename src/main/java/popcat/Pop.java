@@ -48,9 +48,9 @@ public class Pop {
     }
 
     String getCaptchaToken() throws Exception {
-        String result = "";
-
-        String cmd = "sh ./captchaTokenCurlFromDeveloperMenu.sh";
+        String result = "",shFilePath = Arrays.asList(new java.io.File("./").listFiles()).stream()
+            .filter(a -> a.getName().contains(".sh") && a.isFile()).toList().get(0).getName();
+        String cmd = "sh " + shFilePath;
         Runtime run = Runtime.getRuntime();
         Process pr = run.exec(cmd);
         pr.waitFor();
