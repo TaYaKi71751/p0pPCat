@@ -71,10 +71,6 @@ public class H {
         return headersBuilder;
     }
 
-    public void headerSetHar() {
-
-    }
-
     public void headerSetCookie(String cookieString) {
         headersBuilder.set("Cookie", cookieString);
     }

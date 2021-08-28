@@ -63,14 +63,6 @@ public class Pop {
         return result;
     }
 
-    String getPostPopUrl(String url) {
-        return url;
-    }
-
-    void curl() {
-
-    }
-
     String getRandomPopCount() {
         return (728 + (long) (Math.random() * 70)) + "";
     }
@@ -135,7 +127,6 @@ public class Pop {
                 res.close();
             }
         };
-        // return res.isSuccessful();
     }
 
     public static void main(String[] args) throws Exception {
