@@ -6,13 +6,13 @@
 java.io.File shellFile;
 new Firefox(popcat_url).asSecretMode(true).withDeveloperMenu(true).execute().then(this -> {
   this.pop(cat).then((void) ->{
-    Tab* networkTab = this.developerMenu.networkTab;
-    *networkTab.saveAllAsHar(new java.io.File($SAME_DIRECTORY_WHERE_JAR_FILE).getPath() 
+    Tab* networkTab = this->developerMenu->networkTab;
+    networkTab->saveAllAsHar(new java.io.File($SAME_DIRECTORY_WHERE_JAR_FILE).getPath() 
          + "/" + ($HAR_FILE_NAME.contains(" ") ? $HAR_FILE_NAME.replace(" ",""):$HAR_FILE_NAME) + ".har");
-    char* reloadCurl = *networkTab.search("reload").first().copyAsCurl().clipboardString.toCharArray();
+    char* reloadCurl = networkTab->search("reload").first().copyAsCurl().clipboardString.toCharArray();
     if(!(shellFile = new java.io.File(new java.io.File($SAME_DIRECTORY_WHERE_JAR_FILE).getPath() + "/"
       + $SHELL_FILE_NAME + ".sh")).canWrite()){
-        new super.Shell(){{
+        new super->Shell(){{
             changeDirectory($SAME_DIRECTORY_WHERE_JAR_FILE);  
             execute("touch " + $SHELL_FILE_NAME + ".sh");
             close();
