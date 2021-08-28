@@ -2,20 +2,15 @@ package popcat;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.text.SimpleDateFormat;
 
 import okhttp3.Cache;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 
 public class Pop {
     okhttp3.OkHttpClient.Builder okHttpClientBuilder = new okhttp3.OkHttpClient.Builder().followSslRedirects(true)
@@ -48,14 +43,14 @@ public class Pop {
     }
 
     String getCaptchaToken() throws Exception {
-        String result = "",shFilePath = Arrays.asList(new java.io.File("./").listFiles()).stream()
-            .filter(a -> a.getName().contains(".sh") && a.isFile()).toList().get(0).getName();
-        String cmd = "sh " + shFilePath;
+        String result = "",
+                shFilePath = Arrays.asList(new java.io.File("./").listFiles()).stream()
+                        .filter(a -> a.getName().contains(".sh") && a.isFile()).toList().get(0).getName(),
+                cmd = "sh " + shFilePath, line = "";
         Runtime run = Runtime.getRuntime();
         Process pr = run.exec(cmd);
         pr.waitFor();
         BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        String line = "";
         while ((line = buf.readLine()) != null) {
             result += line;
         }
@@ -82,6 +77,10 @@ public class Pop {
 
     void pop() throws Exception {
         long total_count = 0;
+        okhttp3.Request request;
+        okhttp3.Response res;
+        okhttp3.ResponseBody resBody;
+        String resBodyString = "", pop_count = "", url, captchaToken;
         params.clear();
         this.h = new H(harFilePath) {
             {
@@ -93,20 +92,15 @@ public class Pop {
             params.put(key, value);
             return false;
         });
-        okhttp3.Request request = requestBuilder.url(h.url).headers(h.getReqHeadersBuilder().build())
-                .post(new okhttp3.FormBody.Builder().build()).build();
-        okhttp3.Call call;
-        okhttp3.Response res;
-        okhttp3.ResponseBody resBody;
-        String resBodyString = "", pop_count = "";
         res = null;
         do {
-            if (res != null) {
-                res.close();
-            }
-            params.put("captcha_token", getCaptchaToken());
+            params.put("captcha_token", captchaToken = getCaptchaToken());
             params.put("pop_count", pop_count = getRandomPopCount());
-            res = (call = nonRdrctOkHttpClient.newCall(request)).execute();
+            url = h.url.replace((new URI(h.url).getQuery()), "") + "pop_count=" + pop_count + "&captcha_token="
+                    + captchaToken;
+            request = requestBuilder.url(url).headers(h.getReqHeadersBuilder().build())
+                    .post(new okhttp3.FormBody.Builder().build()).build();
+            res = nonRdrctOkHttpClient.newCall(request).execute();
             if (res.isSuccessful()) {
                 total_count += Integer.parseInt(pop_count);
             }
@@ -114,16 +108,34 @@ public class Pop {
             System.out
                     .println(resBody + " - " + (new SimpleDateFormat("(yyyy-MM-dd hh:mm:ss.SSS) - ").format(new Date()))
                             + "(" + total_count + ")" + pop_count + " - " + resBodyString);
-        } while (!call.isExecuted() || res.code() / 100 > 1 || mainPage(pop_count));
-        return;
+            res.close();
+            resBody.close();
+        } while (mainPage(pop_count).isSuccessful || res.code() / 100 > 1);
+        res.close();
     }
 
-    boolean mainPage(String pop_count) throws IOException {
+    class PageResult {
+        boolean isSuccessful;
+        String bs;
+    }
+
+    PageResult mainPage(String pop_count) throws Exception {
         okhttp3.Response res;
-        res = nonRdrctOkHttpClient.newCall((new Request.Builder()).url("https://popcat.click/")
-                .header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0")
-                .header("Cookie", "country=KR; pop_count=" + pop_count).build()).execute();
-        return res.isSuccessful();
+        res = nonRdrctOkHttpClient
+                .newCall((new Request.Builder()).url("https://popcat.click/").headers(new H(harFilePath) {
+                    {
+                        loadFirst("https://popcat.link");
+                    }
+                }.getReqHeadersBuilder().build()).header("Cookie", "country=KR; pop_count=" + pop_count).build())
+                .execute();
+        return new PageResult() {
+            {
+                this.bs = res.body().string();
+                this.isSuccessful = res.isSuccessful();
+                res.close();
+            }
+        };
+        // return res.isSuccessful();
     }
 
     public static void main(String[] args) throws Exception {
