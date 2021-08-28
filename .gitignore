@@ -28,7 +28,7 @@ buildNumber.properties
 .vscode/
 
 # Shell File
-captchaTokenCurlFromDeveloperMenu.sh
+*.sh
 
 # HAR (Http Archive) File
 *.har
