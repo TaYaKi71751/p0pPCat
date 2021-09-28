@@ -1,5 +1,6 @@
 # THIS README MAY CAUSING ((MAKE && (YOU ANNOY || 429)))
 [![](https://github.com/TaYaKi71751/HttpTest/actions/workflows/main.yml/badge.svg)](https://github.com/TaYaKi71751/HttpTest/actions/workflows/main.yml)
+[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
 ## .sh & .har
 ```
 //TODO 
